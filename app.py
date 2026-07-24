@@ -1,5 +1,7 @@
 import json
-
+from flask import Flask
+from dotenv import load_dotenv
+import os
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask import Flask, request, jsonify
 from werkzeug.exceptions import HTTPException
@@ -17,7 +19,8 @@ from schemas import (
     ProjectSchema,
     TaskSchema
 )
-
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 app = Flask(__name__)
 SWAGGER_URL = "/docs"
 
@@ -42,11 +45,12 @@ app.register_blueprint(
     url_prefix=SWAGGER_URL
 )
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
 
-app.config["JWT_SECRET_KEY"] = "secret"
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=5)
-
+print("DB URL:", os.getenv("SQLALCHEMY_DATABASE_URI"))
+print("JWT:", os.getenv("JWT_SECRET_KEY"))
 db.init_app(app)
 
 jwt = JWTManager(app)
